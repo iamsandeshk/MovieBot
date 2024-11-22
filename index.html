@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MovieBot</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <style>
+    :root {
+      --primary-color: #6a11cb;
+      --secondary-color: #2575fc;
+      --background-color: #f4f4f8;
+      --text-color: #1a1a2e;
+      --accent-color: #ff6b6b;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, var(--background-color), #e6e9f0);
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 1rem;
+    }
+
+    .chat-container {
+      width: 100%;
+      max-width: 750px;
+      height: 650px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .chat-header {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header h1 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .chat-header h1 i {
+      color: var(--accent-color);
+    }
+
+    .reset-button {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 50%;
+      transition: background 0.3s ease;
+    }
+
+    .reset-button:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      background: #f9fafc;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      line-height: 1.5;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .message.user {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      align-self: flex-end;
+    }
+
+    .message.bot {
+      background: white;
+      color: var(--text-color);
+      align-self: flex-start;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .typing-indicator {
+      display: none;
+      align-self: flex-start;
+      background: #f0f0f5;
+      color: var(--text-color);
+      padding: 0.75rem 1rem;
+      border-radius: 12px;
+      margin-top: 0.5rem;
+      margin-bottom: 8px;
+    }
+
+    .chat-input {
+      padding: 1rem;
+      background: white;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .chat-input input:focus {
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(106, 17, 203, 0.1);
+    }
+
+    .send-button {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: transform 0.2s ease;
+    }
+
+    .send-button:hover {
+      transform: scale(1.05);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>
+        <i class="fas fa-film"></i>MovieBot
+      </h1>
+      <button class="reset-button" onclick="resetChat()">
+        <i class="fas fa-sync-alt"></i>
+      </button>
+    </div>
+    <div class="chat-body" id="chatBody">
+      <div class="message bot">Hey there! 👋 I'm MovieBot, your friendly movie recommendation assistant. How can I help you today?</div>
+    </div>
+    <div class="typing-indicator" id="typingIndicator">MovieBot is typing...</div>
+    <div class="chat-input">
+      <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+      <button class="send-button" onclick="handleUserInput()">
+        <i class="fas fa-paper-plane"></i>Send
+      </button>
+    </div>
+  </div>
+
+<script>
+    // Movie Database
+// Movie Database
+const movieDatabase = {
+    kannada: {
+        comedy: ["Mysore Mallige", "Gaalipata", "French Biriyani", "Googly", "Victory", "Rama Rama Re", "Mungaru Male", "Lucky", "Brahmachari", "Pellakki"],
+        romance: ["Milana", "Moggina Manasu", "Sanju Weds Geetha", "Rajahuli", "Amrutha Varshini", "Prema Loka", "Banna Bannada Loka", "RangiTaranga", "Gubbi Mele Brahmastra", "Operation Alamelamma"],
+        horror: ["6-5=2", "Grahana", "Shhh!", "Drishyam", "U Turn", "Puta 109", "Ring Master", "Niruttara", "Yashogathe", "Tulasidala"],
+        action: ["KGF", "Pailwaan", "Yuvarathnaa", "Roberrt", "Power", "Kotigobba 3", "Chakravyuha", "Vikrant Rona", "Duniya", "Tagaru"],
+        thriller: ["RangiTaranga", "Ugramm", "Lucia", "Kendasampige", "Navagraha", "Birbal Trilogy", "Bell Bottom", "Avane Srimannarayana", "Salaga", "Kavaludaari"],
+        scientific: ["Rocket", "Naanu Avanalla... Avalu", "A", "Lucia", "Cyanide", "Drama", "Kiragoorina Gayyaligalu", "Care of Footpath", "Thithi", "Sarkari Hi. Pra. Shaale"]
+      },
+      hindi: {
+        comedy: ["3 Idiots", "Munna Bhai MBBS", "Hera Pheri", "Golmaal", "Chhichhore", "PK", "Housefull", "Andaz Apna Apna", "Bala", "Badhaai Ho"],
+        romance: ["Dilwale Dulhania Le Jayenge", "Kuch Kuch Hota Hai", "Barfi!", "Jab We Met", "Veer-Zaara", "Ae Dil Hai Mushkil", "Hum Tum", "Devdas", "Kal Ho Naa Ho", "Tamasha"],
+        horror: ["Tumbbad", "Stree", "Raaz", "Pari", "Bhoot", "1920", "Phobia", "Ek Thi Daayan", "Pizza", "Ragini MMS"],
+        action: ["War", "Dhoom", "Pathaan", "RRR", "Baaghi", "Shershaah", "Singham", "Kick", "Ghajini", "Krrish"],
+        thriller: ["Drishyam", "Kahaani", "Badla", "Wazir", "Andhadhun", "Talaash", "Special 26", "Article 15", "A Wednesday", "Mumbai Meri Jaan"],
+        scientific: ["Robot", "PK", "Koi Mil Gaya", "Dhoom 3", "Ra.One", "Mission Mangal", "Tanhaji", "Chandni Chowk To China", "OMG", "Atrangi Re"]
+      },
+      telugu: {
+        comedy: ["Jathi Ratnalu", "Eega", "Nuvvu Nenu", "Geetha Govindam", "Nuvvostanante Nenoddantana", "Pelli Choopulu", "Chalo", "F2", "Venky", "Swamy Ra Ra"],
+        romance: ["Arjun Reddy", "Geetha Govindam", "Tholi Prema", "Manmadhudu", "Sita Ramam", "Varsham", "Ye Maaya Chesave", "Orange", "Sakhi", "Pavitra Bandham"],
+        horror: ["Avunu", "Kanchana", "Arundhati", "Rajugari Gadhi", "Ekkadiki Pothavu Chinnavada", "Shyam Singha Roy", "Prema Katha Chitram", "Kanchana 2", "Ice Cream", "Chandramukhi"],
+        action: ["Baahubali", "RRR", "Pushpa", "Bheemla Nayak", "Ala Vaikunthapurramuloo", "Sarileru Neekevvaru", "Gabbar Singh", "Magadheera", "DJ", "Aravinda Sametha"],
+        thriller: ["Evaru", "1 Nenokkadine", "Goodachari", "Anukokunda Oka Roju", "Drushyam", "Gatham", "Mishan Impossible", "Agent Sai Srinivasa Athreya", "16 Every Detail Counts", "Awe"],
+        scientific: ["Aditya 369", "Bhaagamathie", "Sye", "Naani", "Okka Kshanam", "Koi Mil Gaya", "Yatra", "Ala Modalaindi", "Manam", "Genius"]
+      },
+  tamil: {
+    comedy: ["Soodhu Kavvum", "Kalakalappu", "Boss Engira Baskaran", "Tamizh Padam", "Vadacurry", "Nanban", "Enakku Innoru Per Irukku", "Kakki Sattai", "Parry Pandi", "Kolamaavu Kokila"],
+    romance: ["96", "Vinnaithaandi Varuvaayaa", "Roja", "Kadhal Desam", "Minnale", "Alaipayuthey", "Engeyum Kadhal", "O Kadhal Kanmani", "Mouna Ragam", "Kadhal"],
+    horror: ["Pizza", "Demonte Colony", "Kanchana", "Muni", "Arundhati", "Aval", "Darling", "Yavarum Nalam", "Iruttu", "Kaatteri"],
+    action: ["Kaala", "Kabali", "Mankatha", "Vikram Vedha", "Master", "Thunivu", "Sarkar", "Thuppakki", "Viswasam", "Singam"],
+    thriller: ["Ratsasan", "Anjaam Pathiraa", "Iru Mugan", "Eeram", "Mugamoodi", "Thegidi", "Neram", "Metro", "Thoonga Vanam", "U Turn"],
+    scientific: ["2.0", "Enthiran", "Indru Netru Naalai", "Tik Tik Tik", "Dasavathaaram", "Time Machine", "7aum Arivu", "Irumbu Thirai", "KO 2", "Maattraan"]
+  },
+  english: {
+    comedy: ["The Hangover", "Superbad", "Step Brothers", "Anchorman", "Dumb and Dumber", "Pitch Perfect", "The Mask", "Mean Girls", "Tropic Thunder", "21 Jump Street"],
+    romance: ["The Notebook", "Titanic", "La La Land", "Pride and Prejudice", "A Walk to Remember", "Crazy Rich Asians", "The Fault in Our Stars", "To All the Boys I've Loved Before", "When Harry Met Sally", "Silver Linings Playbook"],
+    horror: ["The Conjuring", "Insidious", "The Exorcist", "A Quiet Place", "Hereditary", "Get Out", "The Shining", "It", "The Ring", "Paranormal Activity"],
+    action: ["The Dark Knight", "Avengers: Endgame", "Gladiator", "Mad Max: Fury Road", "John Wick", "Inception", "The Matrix", "Black Panther", "Die Hard", "Top Gun: Maverick"],
+    thriller: ["Seven", "Gone Girl", "Shutter Island", "The Girl with the Dragon Tattoo", "Prisoners", "Nightcrawler", "The Silence of the Lambs", "Zodiac", "No Country for Old Men", "The Prestige"],
+    scientific: ["Interstellar", "Inception", "The Martian", "Gravity", "Ex Machina", "Blade Runner 2049", "Avatar", "Star Wars: A New Hope", "E.T.", "Contact"]
+  }
+};
+
+// DOM Elements
+const chatBody = document.getElementById('chatBody');
+const userInput = document.getElementById('userInput');
+const typingIndicator = document.getElementById('typingIndicator');
+
+// State Management
+let suggestedMovies = new Set();
+let currentContext = { language: null, genre: null };
+
+// Utility Functions
+function normalizeText(text) {
+  return text.toLowerCase().trim();
+}
+
+function getRandomMovies(array, count) {
+  let availableMovies = array.filter(movie => !suggestedMovies.has(movie));
+  if (availableMovies.length < count) {
+    suggestedMovies.clear();
+    availableMovies = array;
+  }
+  const shuffled = availableMovies.sort(() => 0.5 - Math.random());
+  const selected = shuffled.slice(0, count);
+  selected.forEach(movie => suggestedMovies.add(movie));
+  return selected;
+}
+
+function addMessage(content, isUser = false) {
+  const messageDiv = document.createElement('div');
+  messageDiv.className = `message ${isUser ? 'user' : 'bot'}`;
+  
+  // If it's a bot message, show typing effect
+  if (!isUser) {
+    typeMessage(messageDiv, content);
+  } else {
+    messageDiv.textContent = content;
+    chatBody.appendChild(messageDiv);
+    chatBody.scrollTop = chatBody.scrollHeight;
+  }
+}
+
+// Typing animation for bot messages
+function typeMessage(element, text, speed = 20) {
+  let index = 0;
+  const interval = setInterval(() => {
+    if (index < text.length) {
+      element.textContent += text[index];
+      chatBody.scrollTop = chatBody.scrollHeight; // Keep scrolling to bottom
+      index++;
+    } else {
+      clearInterval(interval);
+    }
+  }, speed);
+
+  // Append the message to chat body after creating it
+  chatBody.appendChild(element);
+}
+
+
+function showTypingIndicator() {
+  typingIndicator.style.display = 'none';
+  chatBody.scrollTop = chatBody.scrollHeight;
+}
+
+function hideTypingIndicator() {
+  typingIndicator.style.display = 'none';
+}
+
+function processMessage(message) {
+  const normalizedMsg = normalizeText(message);
+
+  const languages = Object.keys(movieDatabase);
+  const genres = Object.keys(movieDatabase[languages[0]]);
+
+  // Greeting Detection
+  if (normalizedMsg.match(/\b(hi|hello|hey|howdy)\b/)) {
+    return {
+      type: 'greeting',
+      response: "Hi! I can suggest movies. Tell me your language (e.g., 'Kannada') or genre (e.g., 'Comedy'). Or combine like 'Kannada Comedy'!"
+    };
+  }
+
+  if (normalizedMsg.match(/\b(movie|movies|movie name|latest movie|suggest|movie suggest|recommend)\b/)) {
+  return {
+    type: 'movie_query',
+    response: "I can help you find movies! 🎥 Please specify a language (e.g., 'Kannada') or genre (e.g., 'Comedy'). You can also combine them like 'Kannada Comedy'!"
+  };
+}
+
+
+  if (normalizedMsg.match(/\b(thank you|thanks|thx|ty|thankyou)\b/)) {
+  return {
+    type: 'gratitude',
+    response: "You're welcome! 😊 Let me know if there's anything else I can help with."
+  };
+}
+
+if (normalizedMsg.match(/\b(bye|goodbye|see you|later|cya)\b/)) {
+  return {
+    type: 'farewell',
+    response: "Goodbye! Have a great day! 🎥🍿"
+  };
+}
+
+  if (normalizedMsg.match(/\b(more|yes)\b/)) {
+    if (currentContext.language && currentContext.genre) {
+      const movies = movieDatabase[currentContext.language][currentContext.genre];
+      const recommendations = getRandomMovies(movies, 3);
+      return {
+        type: 'recommendation',
+        response: `Here are 3 more ${currentContext.genre} movies in ${currentContext.language}: ${recommendations.join(', ')}. Want more?`
+      };
+    } else {
+      return {
+        type: 'help',
+        response: "Please tell me a language and genre first. For example, 'Kannada Horror' or 'Hindi Comedy'."
+      };
+    }
+  }
+
+
+  // Language and Genre Detection
+  let detectedLanguage = languages.find(lang =>
+    normalizedMsg.includes(lang.toLowerCase())
+  );
+
+  let detectedGenre = genres.find(genre =>
+    normalizedMsg.includes(genre.toLowerCase())
+  );
+
+  if (detectedLanguage && detectedGenre) {
+    currentContext.language = detectedLanguage;
+    currentContext.genre = detectedGenre;
+    const movies = movieDatabase[detectedLanguage][detectedGenre];
+    const recommendations = getRandomMovies(movies, 3);
+    return {
+      type: 'recommendation',
+      response: `Here are some ${detectedGenre} movies in ${detectedLanguage}: ${recommendations.join(', ')}.`
+    };
+  } else if (detectedLanguage) {
+    currentContext.language = detectedLanguage;
+    return {
+      type: 'genre_prompt',
+      response: `You're interested in ${detectedLanguage} movies! Which genre? Options: ${genres.join(', ')}`
+    };
+  } else if (detectedGenre) {
+    if (currentContext.language) {
+      currentContext.genre = detectedGenre;
+      const movies = movieDatabase[currentContext.language][detectedGenre];
+      const recommendations = getRandomMovies(movies, 3);
+      return {
+        type: 'recommendation',
+        response: `Here are some ${detectedGenre} movies in ${currentContext.language}: ${recommendations.join(', ')}.`
+      };
+    }
+    return {
+      type: 'language_prompt',
+      response: `${detectedGenre} movies! Which language? Options: ${languages.join(', ')}`
+    };
+  }
+
+  return {
+    type: 'help',
+    response: "I couldn't understand. Try something like 'Kannada Comedy' or 'Horror'!"
+  };
+}
+
+function handleUserInput() {
+  const message = userInput.value.trim();
+  if (!message) return;
+
+  addMessage(message, true);
+  userInput.value = '';
+
+  showTypingIndicator();
+
+  setTimeout(() => {
+    hideTypingIndicator();
+    const result = processMessage(message);
+    addMessage(result.response);
+  }, 1000);
+}
+
+function resetChat() {
+  chatBody.innerHTML = '';
+  currentContext = { language: null, genre: null };
+  suggestedMovies.clear();
+  addMessage("Hi! I'm MovieBot. Find movies by language or genre. Try 'Kannada comedy' or 'English horror'!");
+}
+
+function handleKeyPress(event) {
+  if (event.key === 'Enter') {
+    event.preventDefault(); // Prevent default form submission behavior
+    handleUserInput();
+  }
+}
+
+
+
+// Initial Setup
+document.addEventListener('DOMContentLoaded', () => {
+  userInput.addEventListener('keypress', handleKeyPress);
+});
+</script>
+</body>
+</html>
