@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MovieBot</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+
   <style>
     :root {
       --primary-color: #6a11cb;
@@ -28,14 +30,93 @@
       justify-content: center;
       align-items: center;
       padding: 1rem;
+      overflow: hidden;
+    }
+
+    .movie-bot-container {
+      display: flex;
+      flex-wrap: wrap;
+      width: 100%;
+      max-width: 1400px;
+      background: white;
+      border-radius: 30px;
+      box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .features-sidebar {
+      width: 350px;
+      background: linear-gradient(135deg, #ffffff, #f4f6fa);
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .features-title {
+      display: flex;
+      align-items: center;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--text-color);
+      margin-bottom: 1rem;
+    }
+
+    .features-title i {
+      margin-right: 10px;
+      color: var(--primary-color);
+      animation: spin 3s linear infinite;
+    }
+
+    .feature-card {
+      background: linear-gradient(135deg, #ffffff, #f4f6fa);
+      border-radius: 30px;
+      padding: 1rem;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .feature-icon {
+      width: 50px;
+      height: 50px;
+      border-radius: 50px;
+      padding: 15px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+    }
+
+    .feature-icon i {
+      color: white;
+      font-size: 1.3rem;
+    }
+
+    .feature-content h3 {
+      font-size: 1.3rem;
+      color: var(--text-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .feature-content p {
+      color: #555;
+      font-size: 1rem;
     }
 
     .chat-container {
-      width: 100%;
-      max-width: 750px;
+      flex: 1;
       height: 650px;
       background: white;
-      border-radius: 20px;
+      border-radius: 30px;
       box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
       display: flex;
       flex-direction: column;
@@ -53,7 +134,7 @@
     }
 
     .chat-header h1 {
-      font-size: 1.5rem;
+      font-size: 2.5rem;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -69,13 +150,15 @@
       border: none;
       color: white;
       cursor: pointer;
+      font-size: 1.5em;
       padding: 0.5rem;
-      border-radius: 50%;
-      transition: background 0.3s ease;
+      border-radius: 50px;
+      transition: background 0.3s ease, transform 0.2s ease;
     }
 
     .reset-button:hover {
       background: rgba(255, 255, 255, 0.3);
+      transform: rotate(80deg);
     }
 
     .chat-body {
@@ -86,12 +169,14 @@
       flex-direction: column;
       gap: 1rem;
       background: #f9fafc;
+      scroll-behavior: smooth;
     }
 
     .message {
       max-width: 80%;
+      font-size: 1.5em;
       padding: 0.75rem 1rem;
-      border-radius: 12px;
+      border-radius: 23px;
       line-height: 1.5;
       position: relative;
       animation: fadeIn 0.3s ease;
@@ -104,7 +189,7 @@
     }
 
     .message.bot {
-      background: white;
+      background: rgb(241, 243, 248);
       color: var(--text-color);
       align-self: flex-start;
       box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
@@ -119,10 +204,11 @@
       border-radius: 12px;
       margin-top: 0.5rem;
       margin-bottom: 8px;
+      animation: pulse 1.5s infinite ease-in-out;
     }
 
     .chat-input {
-      padding: 1rem;
+      padding: 1.3rem;
       background: white;
       border-top: 1px solid #e5e7eb;
       display: flex;
@@ -133,8 +219,8 @@
       flex: 1;
       padding: 0.75rem;
       border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      font-size: 1rem;
+      border-radius: 30px;
+      font-size: 1.5rem;
       outline: none;
       transition: all 0.3s ease;
     }
@@ -149,7 +235,7 @@
       color: white;
       border: none;
       padding: 0.75rem 1.5rem;
-      border-radius: 10px;
+      border-radius: 30px;
       cursor: pointer;
       font-size: 1rem;
       display: flex;
@@ -166,29 +252,174 @@
       from { opacity: 0; transform: translateY(10px); }
       to { opacity: 1; transform: translateY(0); }
     }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
   </style>
+  <style>
+    /* Responsive Styles */
+    @media (max-width: 768px) {
+      .movie-bot-container {
+        flex-direction: column;
+        align-items: stretch;
+        height: 100%;  /* Ensures the container fills the screen height */
+      }
+  
+      .features-sidebar {
+        width: 100%;
+        order: 2;
+        margin-top: 1rem;
+        padding: 1rem;
+        box-sizing: border-box;
+        background-color: #f0f4f8;
+      }
+  
+      .chat-container {
+        order: 1;
+        flex: 1;  /* Ensures chat-container takes available space */
+        height: auto;
+        min-height: 450px;  /* Provides a minimum height to avoid shrinking */
+      }
+  
+      .chat-header h1 {
+        font-size: 1.8rem;
+      }
+  
+      .feature-card {
+        flex-direction: column;
+        text-align: center;
+      }
+  
+      .feature-icon {
+        margin: 0 auto 1rem;
+      }
+  
+      .chat-input input {
+        font-size: 1rem;
+        padding: 0.5rem;
+      }
+  
+      .send-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.9rem;
+      }
+  
+      .chat-body {
+        padding: 1rem;
+        overflow-y: auto;
+        flex: 1;  /* Ensures the chat body fills the available space */
+        margin-bottom: 60px;  /* Prevents overlap with the input field */
+      }
+  
+      .send-button {
+        width: 100%;  /* Ensures send button is full width on mobile */
+      }
+    }
+  
+    @media (max-width: 480px) {
+      .chat-header h1 {
+        font-size: 1.5rem;
+      }
+  
+      .chat-input {
+        flex-direction: column;
+        width: 100%;
+      }
+  
+      .chat-input input {
+        margin-bottom: 0.5rem;
+        width: 100%;
+      }
+  
+      .send-button {
+        width: 100%;
+        justify-content: center;
+      }
+  
+      .movie-bot-container {
+        height: 100vh; /* Ensures the container fills the entire screen */
+      }
+
+      .message {
+      font-size: 1em;
+      padding: 0.75rem 1rem;
+      border-radius: 20px;
+      line-height: 1.5;
+      position: relative;
+      animation: fadeIn 0.3s ease;
+    }
+  
+      .chat-container {
+        min-height: 450px;  /* Ensures chat section has enough space */
+      }
+    }
+  </style>
+  
 </head>
 <body>
-  <div class="chat-container">
-    <div class="chat-header">
-      <h1>
-        <i class="fas fa-film"></i>MovieBot
-      </h1>
-      <button class="reset-button" onclick="resetChat()">
-        <i class="fas fa-sync-alt"></i>
-      </button>
+  <div class="movie-bot-container">
+    <div class="features-sidebar">
+      <div class="features-title">
+        <i class="fas fa-sparkles"></i>
+        MovieBot Features
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">
+          <i class="fa-solid fa-globe"></i>
+        </div>
+        <div class="feature-content">
+          <h3>Multi-Language Support</h3>
+          <p>Recommendations in Kannada, English, Hindi, Telugu, and Tamil</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff9a9e);">
+          <i class="fas fa-film"></i>
+        </div>
+        <div class="feature-content">
+          <h3>Diverse Genres</h3>
+          <p>From Action to Comedy, Drama to Sci-Fi, we've got you covered!</p>
+        </div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon" style="background: linear-gradient(135deg, #ffd700, #ffb600);">
+          <i class="fas fa-star"></i>
+        </div>
+        <div class="feature-content">
+          <h3>Smart Recommendations</h3>
+          <p>AI-powered personalized movie suggestions</p>
+        </div>
+      </div>
     </div>
-    <div class="chat-body" id="chatBody">
-      <div class="message bot">Hey there! 👋 I'm MovieBot, your friendly movie recommendation assistant. How can I help you today?</div>
-    </div>
-    <div class="typing-indicator" id="typingIndicator">MovieBot is typing...</div>
-    <div class="chat-input">
-      <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
-      <button class="send-button" onclick="handleUserInput()">
-        <i class="fas fa-paper-plane"></i>Send
-      </button>
+    <div class="chat-container">
+      <div class="chat-header">
+        <h1>
+          <i class="fas fa-film"></i>MovieBot
+        </h1>
+        <button class="reset-button" onclick="resetChat()">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+      </div>
+      <div class="chat-body" id="chatBody">
+        <div class="message bot">Hey there! 👋 I'm MovieBot, your friendly movie recommendation assistant. How can I help you today?</div>
+      </div>
+      <div class="typing-indicator" id="typingIndicator">MovieBot is typing...</div>
+      <div class="chat-input">
+        <input type="text" id="userInput" placeholder="Type your message..." onkeypress="handleKeyPress(event)">
+        <button class="send-button" onclick="handleUserInput()">
+          <i class="fas fa-paper-plane"></i>Send
+        </button>
+      </div>
     </div>
   </div>
+
 
 <script>
     // Movie Database
@@ -282,7 +513,7 @@ function typeMessage(element, text, speed = 20) {
   const interval = setInterval(() => {
     if (index < text.length) {
       element.textContent += text[index];
-      chatBody.scrollTop = chatBody.scrollHeight; // Keep scrolling to bottom
+      chatBody.scrollTop = chatBody.scrollHeight; 
       index++;
     } else {
       clearInterval(interval);
@@ -438,6 +669,33 @@ function handleKeyPress(event) {
 document.addEventListener('DOMContentLoaded', () => {
   userInput.addEventListener('keypress', handleKeyPress);
 });
+
+
+document.addEventListener("DOMContentLoaded", function() {
+  // Select the chat input field
+  const chatInput = document.querySelector(".chat-input input");
+
+  // Add an event listener to the entire document to detect clicks
+  document.addEventListener("click", function(event) {
+    // Check if the clicked element is not the input field
+    if (!chatInput.contains(event.target)) {
+      // If the user clicked anywhere else, force the focus to the input
+      chatInput.focus();
+    }
+  });
+
+  // Optionally, you can ensure that the input is focused as soon as the page loads
+  chatInput.focus();
+
+  // If you want to ensure that typing always happens in the input even when the user clicks outside
+  chatInput.addEventListener("focus", function() {
+    setTimeout(function() {
+      // This is optional to handle cursor behavior
+      chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length);
+    }, 0);
+  });
+});
+
 </script>
 </body>
 </html>
